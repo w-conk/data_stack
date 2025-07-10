@@ -3,7 +3,7 @@
 A complete data stack implementation with:
 - **dlt**: Data loading into PostgreSQL
 - **dbt**: Data transformation
-- **Evidence**: Data visualization
+- **Evidence**: Data visualization (coming soon)
 - **Dagster**: Orchestration
 - **Docker**: Containerization
 
@@ -52,7 +52,7 @@ data_stack/
 │   ├── models/
 │   ├── seeds/
 │   └── dbt_project.yml
-├── evidence/              # Data visualization
+├── evidence (coming soon)/              # Data visualization
 │   ├── pages/
 │   └── package.json
 ├── dagster/               # Orchestration
@@ -78,7 +78,7 @@ data_stack/
 - Implements data quality tests
 - Generates documentation
 
-### 3. Evidence (Data Visualization)
+### 3. Evidence (Data Visualization, coming soon)
 - Open-source BI tool
 - SQL-first approach
 - Real-time dashboards
@@ -125,14 +125,3 @@ All configuration is done through environment variables in `docker-compose.yml`:
 - Dagster UI provides pipeline monitoring
 - PostgreSQL logs available via Docker
 - Evidence dashboards show data freshness
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## License
-
-MIT License 
