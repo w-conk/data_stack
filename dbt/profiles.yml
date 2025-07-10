@@ -1,0 +1,28 @@
+data_stack:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('POSTGRES_HOST', 'postgres') }}"
+      port: "{{ env_var('POSTGRES_PORT', 5432) }}"
+      user: "{{ env_var('POSTGRES_USER', 'data_stack_user') }}"
+      password: "{{ env_var('POSTGRES_PASSWORD', 'data_stack_password') }}"
+      dbname: "{{ env_var('POSTGRES_DB_DEV', 'data_stack_dev') }}"
+      schema: "{{ env_var('DBT_SCHEMA', 'public') }}"
+      threads: 4
+      keepalives_idle: 0
+      search_path: public
+      connect_timeout: 10
+    
+    prod:
+      type: postgres
+      host: "{{ env_var('POSTGRES_HOST', 'postgres') }}"
+      port: "{{ env_var('POSTGRES_PORT', 5432) }}"
+      user: "{{ env_var('POSTGRES_USER', 'data_stack_user') }}"
+      password: "{{ env_var('POSTGRES_PASSWORD', 'data_stack_password') }}"
+      dbname: "{{ env_var('POSTGRES_DB_PROD', 'data_stack_prod') }}"
+      schema: "{{ env_var('DBT_SCHEMA_PROD', 'public') }}"
+      threads: 8
+      keepalives_idle: 0
+      search_path: public
+      connect_timeout: 10 

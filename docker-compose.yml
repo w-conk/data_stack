@@ -1,0 +1,118 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: data_stack_postgres
+    environment:
+      POSTGRES_DB: data_stack
+      POSTGRES_USER: data_stack_user
+      POSTGRES_PASSWORD: data_stack_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U data_stack_user -d data_stack"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Dagster Orchestration
+  dagster:
+    build:
+      context: ./dagster
+      dockerfile: ../docker/dagster/Dockerfile
+    container_name: data_stack_dagster
+    environment:
+      - DAGSTER_HOME=/opt/dagster/dagster_home
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=data_stack
+      - POSTGRES_USER=data_stack_user
+      - POSTGRES_PASSWORD=data_stack_password
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./dagster:/opt/dagster
+      - ./dbt:/opt/dbt
+      - dagster_data:/opt/dagster/dagster_home
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # dlt Data Loading Service
+  dlt:
+    build:
+      context: ./dlt
+      dockerfile: ../docker/dlt/Dockerfile
+    container_name: data_stack_dlt
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=data_stack
+      - POSTGRES_USER=data_stack_user
+      - POSTGRES_PASSWORD=data_stack_password
+    volumes:
+      - ./dlt:/opt/dlt
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - data-loading
+
+  # dbt Data Transformation Service
+  dbt:
+    build:
+      context: ./dbt
+      dockerfile: ../docker/dbt/Dockerfile
+    container_name: data_stack_dbt
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=data_stack
+      - POSTGRES_USER=data_stack_user
+      - POSTGRES_PASSWORD=data_stack_password
+    volumes:
+      - ./dbt:/opt/dbt
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - data-transformation
+
+  # Evidence Data Visualization
+  evidence:
+    build:
+      context: ./evidence
+      dockerfile: ../docker/evidence/Dockerfile
+    container_name: data_stack_evidence
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=data_stack
+      - POSTGRES_USER=data_stack_user
+      - POSTGRES_PASSWORD=data_stack_password
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./evidence:/opt/evidence
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+    driver: local
+  dagster_data:
+    driver: local
+
+networks:
+  default:
+    name: data_stack_network 

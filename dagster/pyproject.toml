@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "data-stack-dagster"
+version = "0.1.0"
+description = "Dagster orchestrator for data stack"
+
+[tool.dagster]
+module_name = "definitions" 
